@@ -1,8 +1,7 @@
-class User:
-    def __init__(self, user_id: int, name: str) -> None:
-        self.user_id = user_id
-        self.name = name
+class Currency:
+    def __init__(self, id: int, code: str, full_name: str, sign: str):
+        self.id = id
+        self.code = code
+        self.full_name = full_name
+        self.sign = sign
 
-    @staticmethod
-    def get_user(user_id: int) -> "User":
-        return User(user_id, "User Name")

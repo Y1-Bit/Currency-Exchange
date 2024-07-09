@@ -14,16 +14,16 @@ def create_tables():
     """)
 
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS ExchangeRates (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        base_currency_id INTEGER NOT NULL,
-        target_currency_id INTEGER NOT NULL,
-        rate REAL NOT NULL,
-        FOREIGN KEY (base_currency_id) REFERENCES Currencies (id),
-        FOREIGN KEY (target_currency_id) REFERENCES Currencies (id),
-        UNIQUE (base_currency_id, target_currency_id)
-    )
-    """)
+        CREATE TABLE IF NOT EXISTS ExchangeRates (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            base_currency_id INTEGER NOT NULL,
+            target_currency_id INTEGER NOT NULL,
+            rate NUMERIC(10, 6) NOT NULL,
+            FOREIGN KEY (base_currency_id) REFERENCES Currencies (id),
+            FOREIGN KEY (target_currency_id) REFERENCES Currencies (id),
+            UNIQUE (base_currency_id, target_currency_id)
+        )
+        """)
 
     conn.commit()
     conn.close()

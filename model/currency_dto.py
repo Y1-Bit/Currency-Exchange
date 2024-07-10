@@ -1,4 +1,4 @@
-class Currency:
+class CurrencyDTO:
     def __init__(self, id: int, code: str, full_name: str, sign: str):
         self.id = id
         self.code = code

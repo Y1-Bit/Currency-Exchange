@@ -35,8 +35,39 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.log_error(f"Exception: {e}")
             self.send_error(500, f"Internal Server Error: {e}")
 
+
+    def do_POST(self):
+        parsed_path = urlparse(self.path)
+        path = parsed_path.path
+
+        if path == '/currencies':
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length).decode('utf-8')
+            form_data = parse_qs(post_data)
+
+            name = form_data.get('name', [None])[0]
+            code = form_data.get('code', [None])[0]
+            sign = form_data.get('sign', [None])[0]
+
+            if not name or not code or not sign:
+                self.send_response_with_body(400, "Missing required form field")
+                return
+
+            try:
+                currency = CurrencyService.add_currency(name, code, sign)
+                response = CurrencyView.show_currency(currency)
+                self.send_response_with_body(201, response)
+            except ValueError as e:
+                self.send_response_with_body(409, str(e))
+            except Exception as e:
+                self.send_response_with_body(500, f"Internal Server Error: {e}")
+        else:
+            response = "Not Found"
+            self.send_response_with_body(404, response) 
+
     def send_response_with_body(self, code, body):
         self.send_response(code)
         self.send_header('Content-type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')  
         self.end_headers()
         self.wfile.write(body.encode('utf-8'))

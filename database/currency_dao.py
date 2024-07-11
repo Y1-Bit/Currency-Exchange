@@ -8,7 +8,7 @@ class CurrencyDAO:
     def get_all_currencies() -> list[CurrencyDTO]:
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT id, code, full_name, sign FROM Currencies")
+            cursor.execute("SELECT id, code, name, sign FROM Currencies")
             rows = cursor.fetchall()
         return [CurrencyDTO(*row) for row in rows]
 
@@ -16,6 +16,6 @@ class CurrencyDAO:
     def get_currency_by_code(code: str) -> CurrencyDTO | None:
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT id, code, full_name, sign FROM Currencies WHERE code = ?", (code,))
+            cursor.execute("SELECT id, code, name, sign FROM Currencies WHERE code = ?", (code,))
             row = cursor.fetchone()
         return CurrencyDTO(*row) if row else None

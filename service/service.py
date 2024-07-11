@@ -1,5 +1,5 @@
-from database import CurrencyDAO
-from model import CurrencyDTO
+from database import CurrencyDAO, ExchangeDAO
+from model import CurrencyDTO, ExchangeDTO
 
 
 class CurrencyService:
@@ -17,3 +17,10 @@ class CurrencyService:
         if existing_currency:
             raise ValueError(f"Currency with code {code} already exists")
         return CurrencyDAO.add_currency(name, code, sign)   
+
+
+
+class ExchangeService:
+    @staticmethod
+    def get_all_exchanges() -> list[ExchangeDTO]:
+        return ExchangeDAO.get_all_exchanges()

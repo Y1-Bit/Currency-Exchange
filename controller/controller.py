@@ -1,7 +1,7 @@
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
-from service.service import CurrencyService
-from view import CurrencyView
+from service.service import CurrencyService, ExchangeDAO
+from view import CurrencyView, ExchangeView
 
 class RequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -24,7 +24,10 @@ class RequestHandler(BaseHTTPRequestHandler):
                 else:
                     response = "Currency not found"
                     self.send_response_with_body(404, response)
-
+            elif path == '/exchangeRates':
+                exchanges = ExchangeDAO.get_all_exchanges()
+                response = ExchangeView.show_exchanges(exchanges)
+                self.send_response_with_body(200, response)
             else:
                 response = "Not Found"
                 self.send_response_with_body(404, response)

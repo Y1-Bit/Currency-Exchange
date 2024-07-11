@@ -1,1 +1,1 @@
-from .view import CurrencyView
+from .view import CurrencyView, ExchangeView

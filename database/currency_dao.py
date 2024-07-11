@@ -29,3 +29,11 @@ class CurrencyDAO:
             conn.commit()
             currency_id = cursor.lastrowid
             return CurrencyDTO(currency_id, code, name, sign)
+        
+    @staticmethod
+    def get_currency_by_id(currency_id: int) -> CurrencyDTO | None:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, code, name, sign FROM Currencies WHERE id = ?", (currency_id,))
+            row = cursor.fetchone()
+        return CurrencyDTO(*row) if row else None

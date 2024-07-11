@@ -40,7 +40,7 @@ def insert_test_data():
         ]
 
         cursor.executemany(
-            "INSERT INTO Currencies (code, full_name, sign) VALUES (?, ?, ?)", currencies
+            "INSERT INTO Currencies (code, name, sign) VALUES (?, ?, ?)", currencies
         )
 
         exchange_rates = [

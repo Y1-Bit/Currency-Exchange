@@ -9,7 +9,7 @@ def create_tables():
             CREATE TABLE IF NOT EXISTS Currencies (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 code TEXT UNIQUE NOT NULL,
-                full_name TEXT NOT NULL,
+                name TEXT NOT NULL,
                 sign TEXT NOT NULL
             )
             """

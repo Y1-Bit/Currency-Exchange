@@ -1,76 +1,58 @@
 from http.server import BaseHTTPRequestHandler
-from urllib.parse import urlparse, parse_qs
-from service.service import CurrencyService, ExchangeDAO
-from view import CurrencyView, ExchangeView
+from urllib.parse import parse_qs, urlparse
+
+from .router import Router
+
 
 class RequestHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
+    def __init__(self, *args, router: Router, **kwargs) -> None:
+        self.router = router
+        super().__init__(*args, **kwargs)
+
+    def do_GET(self) -> None:
+        self.handle_request("GET")
+
+    def handle_get(self, handler, query) -> None:
+        handler(self, query)
+
+    def do_POST(self) -> None:
+        self.handle_request("POST")
+
+    def handle_post(self, handler) -> None:
+        content_length = int(self.headers["Content-Length"])
+        post_data = self.rfile.read(content_length).decode("utf-8")
+        form_data = parse_qs(post_data)
+        handler(self, form_data)
+
+    def handle_request(self, method) -> None:
         parsed_path = urlparse(self.path)
         path = parsed_path.path
         query = parse_qs(parsed_path.query)
 
-        try:
-            if path == '/currencies':
-                currencies = CurrencyService.get_all_currencies()
-                response = CurrencyView.show_currencies(currencies)
-                self.send_response_with_body(200, response)
-
-            elif path.startswith('/currency/'):
-                code = path.split('/')[-1]
-                currency = CurrencyService.get_currency(code)
-                if currency:
-                    response = CurrencyView.show_currency(currency)
-                    self.send_response_with_body(200, response)
-                else:
-                    response = "Currency not found"
-                    self.send_response_with_body(404, response)
-            elif path == '/exchangeRates':
-                exchanges = ExchangeDAO.get_all_exchanges()
-                response = ExchangeView.show_exchanges(exchanges)
-                self.send_response_with_body(200, response)
-            else:
-                response = "Not Found"
-                self.send_response_with_body(404, response)
-
-        except BrokenPipeError:
-            self.log_error("BrokenPipeError: Client closed the connection before response could be sent.")
-        except Exception as e:
-            self.log_error(f"Exception: {e}")
-            self.send_error(500, f"Internal Server Error: {e}")
-
-
-    def do_POST(self):
-        parsed_path = urlparse(self.path)
-        path = parsed_path.path
-
-        if path == '/currencies':
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length).decode('utf-8')
-            form_data = parse_qs(post_data)
-
-            name = form_data.get('name', [None])[0]
-            code = form_data.get('code', [None])[0]
-            sign = form_data.get('sign', [None])[0]
-
-            if not name or not code or not sign:
-                self.send_response_with_body(400, "Missing required form field")
-                return
-
+        handler = self.router.get_handler(path, method)
+        if handler:
             try:
-                currency = CurrencyService.add_currency(name, code, sign)
-                response = CurrencyView.show_currency(currency)
-                self.send_response_with_body(201, response)
-            except ValueError as e:
-                self.send_response_with_body(409, str(e))
+                if method == "GET":
+                    self.handle_get(handler, query)
+                elif method == "POST":
+                    self.handle_post(handler)
+            except BrokenPipeError:
+                self.log_error(
+                    "BrokenPipeError: Client closed the connection before response could be sent."
+                )
             except Exception as e:
-                self.send_response_with_body(500, f"Internal Server Error: {e}")
+                self.log_error(f"Exception: {e}")
+                self.send_error(500, f"Internal Server Error: {e}")
         else:
-            response = "Not Found"
-            self.send_response_with_body(404, response) 
+            self.not_found()
 
-    def send_response_with_body(self, code, body):
+    def send_response_with_body(self, code, body) -> None:
         self.send_response(code)
-        self.send_header('Content-type', 'application/json')
-        self.send_header('Access-Control-Allow-Origin', '*')  
+        self.send_header("Content-type", "application/json")
+        self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
-        self.wfile.write(body.encode('utf-8'))
+        self.wfile.write(body.encode("utf-8"))
+
+    def not_found(self) -> None:
+        response = "Not Found"
+        self.send_response_with_body(404, response)

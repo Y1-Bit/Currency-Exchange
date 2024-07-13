@@ -2,8 +2,7 @@ from http.server import BaseHTTPRequestHandler
 from urllib.parse import parse_qs, urlparse
 
 from database.repo.requests import RequestsRepo
-from router import router
-
+from router.router import router
 
 class RequestHandler(BaseHTTPRequestHandler):
     def __init__(self, *args, repo: RequestsRepo, **kwargs):

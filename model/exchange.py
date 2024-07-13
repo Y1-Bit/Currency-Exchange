@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from .currency import Currency
+from model.currency import Currency
 
 
 @dataclass

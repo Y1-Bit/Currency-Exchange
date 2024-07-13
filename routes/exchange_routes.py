@@ -1,4 +1,4 @@
-from controller import RequestHandler
+from controller.controller import RequestHandler
 from database.repo.requests import RequestsRepo
 
 

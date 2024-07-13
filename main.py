@@ -1,10 +1,11 @@
 from functools import partial
 from http.server import HTTPServer
 
-from controller import RequestHandler
+from controller.controller import RequestHandler
 from database.db_manager import DatabaseManager
 from database.repo.requests import RequestsRepo
-from routes import *
+from routes.currency_routes import *
+from routes.exchange_routes import *
 
 
 def run(handler_class, server_class=HTTPServer, port=8000):

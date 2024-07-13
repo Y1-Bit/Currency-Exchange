@@ -1,5 +1,5 @@
 from database.repo.base import BaseRepo
-from model import Currency, ListCurrency
+from model.currency import Currency, ListCurrency
 
 
 class CurrencyRepo(BaseRepo):

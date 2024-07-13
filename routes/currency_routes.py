@@ -1,6 +1,6 @@
 from controller import RequestHandler
-from controller.router import router
 from database.repo.requests import RequestsRepo
+from router import router
 
 
 @router.get("/currencies")

@@ -1,10 +1,17 @@
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import parse_qs, urlparse
 
+from database.db_manager import DatabaseManager
+from database.repo.requests import RequestsRepo
+
 from .router import router
 
 
 class RequestHandler(BaseHTTPRequestHandler):
+    def __init__(self, *args, repo: RequestsRepo, **kwargs):
+        self.repo = repo
+        super().__init__(*args, **kwargs)
+
     def do_GET(self):
         self.handle_request('GET')
 
@@ -16,17 +23,21 @@ class RequestHandler(BaseHTTPRequestHandler):
         path = parsed_path.path
         query = parse_qs(parsed_path.query)
 
+        self.repo.db_manager.connect()
+
         handler = router.find_handler(method, path)
         if handler:
             if method == 'POST':
                 content_length = int(self.headers['Content-Length'])
                 post_data = self.rfile.read(content_length).decode('utf-8')
                 form_data = {k: v[0] for k, v in parse_qs(post_data).items()}
-                handler(self, form_data)
-            else:
-                handler(self, query)
+                handler(self, form_data, self.repo)
+            elif method == 'GET':	
+                handler(self, query, self.repo)
         else:
             self.not_found()
+        
+        self.repo.db_manager.close()        
 
     def send_response_with_body(self, code, body):
         self.send_response(code)

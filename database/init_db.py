@@ -1,9 +1,9 @@
-from db_manager import get_db_connection
+from database.db_manager import DatabaseManager
+from database.repo.requests import RequestsRepo
 
 
-def create_tables():
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
+def create_tables(repo: RequestsRepo):
+    with repo.db_manager.transaction() as cursor:
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS Currencies (
@@ -28,11 +28,11 @@ def create_tables():
             )
             """
         )
-        conn.commit()
+        if repo.db_manager.conn is not None:
+            repo.db_manager.conn.commit()
 
-def insert_test_data():
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
+def insert_test_data(repo: RequestsRepo):
+    with repo.db_manager.transaction() as cursor:
         currencies = [
             ("USD", "United States dollar", "$"),
             ("EUR", "Euro", "€"),
@@ -53,11 +53,15 @@ def insert_test_data():
             "INSERT INTO ExchangeRates (base_currency_id, target_currency_id, rate) VALUES (?, ?, ?)",
             exchange_rates,
         )
-        conn.commit()
+
+        if repo.db_manager.conn is not None:
+            repo.db_manager.conn.commit()
 
 def main() -> None:
-    create_tables()
-    insert_test_data()
+    db_manager = DatabaseManager('database.db')
+    repo = RequestsRepo(db_manager)
+    create_tables(repo)
+    insert_test_data(repo)
 
 if __name__ == "__main__":
     main()

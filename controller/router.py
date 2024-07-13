@@ -6,7 +6,6 @@ class Router:
     def get(self, path):
         def register_get_handler(handler):
             self.get_handlers.append((path, handler))
-            print(self.get_handlers)
             return handler
         return register_get_handler
 
@@ -16,10 +15,10 @@ class Router:
             return handler
         return register_post_handler
 
-    def find_handler(self, method, path):
+    def find_handler(self, method, path: str):
         handlers = self.get_handlers if method == 'GET' else self.post_handlers
         for handler_path, handler in handlers:
-            if handler_path in path:
+            if path.startswith(handler_path):
                 return handler
         return None
 

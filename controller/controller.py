@@ -7,7 +7,7 @@ from routes.router import Router
 
 
 class RequestHandler(BaseHTTPRequestHandler):
-    def __init__(self, *args, repo: RequestsRepo, router: Router, db_manager: DatabaseManager,**kwargs):
+    def __init__(self, *args, repo: RequestsRepo, router: Router, db_manager: DatabaseManager, **kwargs):
         self.repo = repo
         self.router = router
         self.db_manager = db_manager    
@@ -30,16 +30,22 @@ class RequestHandler(BaseHTTPRequestHandler):
         handler = self.router.find_handler(method, path)
         if handler:
             if method == "POST":
-                content_length = int(self.headers["Content-Length"])
-                post_data = self.rfile.read(content_length).decode("utf-8")
-                form_data = {k: v[0] for k, v in parse_qs(post_data).items()}
-                handler(self, form_data, self.repo)
+                self.handle_post(handler)
             elif method == "GET":
-                handler(self, query, self.repo)
+                self.handle_get(handler, query)
         else:
-            self.not_found()
+            self.handle_not_found()
 
         connection.close()
+
+    def handle_get(self, handler, query):
+        handler(self, query, self.repo)
+
+    def handle_post(self, handler):
+        content_length = int(self.headers["Content-Length"])
+        post_data = self.rfile.read(content_length).decode("utf-8")
+        form_data = {k: v[0] for k, v in parse_qs(post_data).items()}
+        handler(self, form_data, self.repo)
 
     def send_response_with_body(self, code, body):
         self.send_response(code)
@@ -48,6 +54,6 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body.encode("utf-8"))
 
-    def not_found(self):
+    def handle_not_found(self):
         response = "Not Found"
         self.send_response_with_body(404, response)

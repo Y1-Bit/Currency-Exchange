@@ -1,6 +1,6 @@
-from database.db_manager import DatabaseManager
+from sqlite3 import Connection
 
 
 class BaseRepo:
-    def __init__(self, db_manager: DatabaseManager):
-        self.db_manager = db_manager
+    def __init__(self, connection: Connection):
+        self.connection = connection

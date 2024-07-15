@@ -16,8 +16,8 @@ def run(handler_class, server_class=HTTPServer, port=8000):
 
 def main() -> None:
     db_manager = DatabaseManager("database.db")
-    repo = RequestsRepo(db_manager)
-    handler_class = partial(RequestHandler, repo=repo, router=router)
+    repo = RequestsRepo()
+    handler_class = partial(RequestHandler, repo=repo, router=router, db_manager=db_manager)
     run(handler_class=handler_class)
 
 

@@ -2,13 +2,15 @@ from http.server import BaseHTTPRequestHandler
 from urllib.parse import parse_qs, urlparse
 
 from database.repo.requests import RequestsRepo
+from database.db_manager import DatabaseManager 
 from routes.router import Router
 
 
 class RequestHandler(BaseHTTPRequestHandler):
-    def __init__(self, *args, repo: RequestsRepo, router: Router,**kwargs):
+    def __init__(self, *args, repo: RequestsRepo, router: Router, db_manager: DatabaseManager,**kwargs):
         self.repo = repo
         self.router = router
+        self.db_manager = db_manager    
         super().__init__(*args, **kwargs)
 
     def do_GET(self):
@@ -22,7 +24,8 @@ class RequestHandler(BaseHTTPRequestHandler):
         path = parsed_path.path
         query = parse_qs(parsed_path.query)
 
-        self.repo.db_manager.connect()
+        connection = self.db_manager.get_connection()
+        self.repo.set_connection(connection)
 
         handler = self.router.find_handler(method, path)
         if handler:
@@ -36,7 +39,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         else:
             self.not_found()
 
-        self.repo.db_manager.close()
+        connection.close()
 
     def send_response_with_body(self, code, body):
         self.send_response(code)

@@ -2,11 +2,13 @@ from http.server import BaseHTTPRequestHandler
 from urllib.parse import parse_qs, urlparse
 
 from database.repo.requests import RequestsRepo
-from router.router import router
+from routes.router import Router
+
 
 class RequestHandler(BaseHTTPRequestHandler):
-    def __init__(self, *args, repo: RequestsRepo, **kwargs):
+    def __init__(self, *args, repo: RequestsRepo, router: Router,**kwargs):
         self.repo = repo
+        self.router = router
         super().__init__(*args, **kwargs)
 
     def do_GET(self):
@@ -22,7 +24,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         self.repo.db_manager.connect()
 
-        handler = router.find_handler(method, path)
+        handler = self.router.find_handler(method, path)
         if handler:
             if method == "POST":
                 content_length = int(self.headers["Content-Length"])

@@ -22,5 +22,3 @@ class Router:
                 return handler
         return None
 
-router = Router()
-

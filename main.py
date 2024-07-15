@@ -1,11 +1,26 @@
+from functools import partial
 from http.server import HTTPServer
-from controller.controller import RequestHandler
 
-def run(server_class=HTTPServer, handler_class=RequestHandler, port=8000):
-    server_address = ('', port)
+from controller.controller import RequestHandler
+from database.db_manager import DatabaseManager
+from database.repo.requests import RequestsRepo
+from routes.currency_routes import *
+from routes.exchange_routes import *
+
+
+def run(handler_class, server_class=HTTPServer, port=8000):
+    server_address = ("", port)
     httpd = server_class(server_address, handler_class)
-    print(f"Serving on port {port}")
+    print(f"Starting httpd server on port {port}...")
     httpd.serve_forever()
 
-if __name__ == '__main__':
-    run()
+
+def main() -> None:
+    db_manager = DatabaseManager('database.db')
+    repo = RequestsRepo(db_manager)
+    handler_class = partial(RequestHandler, repo=repo)
+    run(handler_class=handler_class)
+
+
+if __name__ == "__main__":
+    main()

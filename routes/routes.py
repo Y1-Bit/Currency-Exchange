@@ -1,5 +1,6 @@
 from database.db_manager import connection_maker
 from database.repo.currency import CurrencyRepo
+from database.repo.exchange import ExchangeRepo
 from database.transaction_manager import TransactionManager
 from routes.router import Router
 
@@ -29,7 +30,13 @@ def get_currency(code) -> dict:
 
 
 @router.get("/exchangeRates")
-def handle_get_exchange_rates(): ...
+def handle_get_exchange_rates() -> dict:
+    with connection_maker() as conn:
+        with TransactionManager(conn) as cursor:
+            repo = ExchangeRepo(cursor)
+            exchange_rates = repo.get_all_exchanges()
+    response = exchange_rates.to_json()
+    return {"status_code": 200, "body": response}
 
 
 @router.post("/currencies")

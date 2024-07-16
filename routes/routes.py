@@ -40,4 +40,10 @@ def handle_get_exchange_rates() -> dict:
 
 
 @router.post("/currencies")
-def handle_post_currency(): ...
+def handle_post_currency(form_data):
+    with connection_maker() as conn:
+        with TransactionManager(conn) as cursor:
+            repo = CurrencyRepo(cursor)
+            currency = repo.add_currency(form_data)
+    response = currency.to_json()
+    return {"status_code": 201, "body": response}

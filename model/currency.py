@@ -17,7 +17,7 @@ class Currency:
     
 
 @dataclass
-class ListCurrency:
+class CurrencyList:
     currencies: list[Currency]
 
     def to_json(self):

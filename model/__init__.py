@@ -1,2 +1,2 @@
-from .currency import Currency, ListCurrency
+from .currency import Currency, CurrencyList
 from .exchange import Exchange

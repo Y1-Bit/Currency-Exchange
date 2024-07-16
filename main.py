@@ -2,8 +2,6 @@ from functools import partial
 from http.server import HTTPServer
 
 from controller.controller import RequestHandler
-from database.db_manager import DatabaseManager
-from database.repo.requests import RequestsRepo
 from routes.routes import router
 
 
@@ -15,9 +13,7 @@ def run(handler_class, server_class=HTTPServer, port=8000):
 
 
 def main() -> None:
-    db_manager = DatabaseManager("database.db")
-    repo = RequestsRepo()
-    handler_class = partial(RequestHandler, repo=repo, router=router, db_manager=db_manager)
+    handler_class = partial(RequestHandler, router=router)
     run(handler_class=handler_class)
 
 

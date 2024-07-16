@@ -1,11 +1,11 @@
 from sqlite3 import Connection
 
-from database.db_manager import DatabaseManager
+from database.db_manager import connection_maker
 from database.transaction_manager import TransactionManager
 
 
-def create_tables(connection: Connection):
-    with TransactionManager(connection) as cursor:
+def create_tables(conn: Connection) -> None:
+    with TransactionManager(conn) as cursor:
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS Currencies (
@@ -31,8 +31,8 @@ def create_tables(connection: Connection):
             """
         )
 
-def insert_test_data(connection: Connection):
-    with TransactionManager(connection) as cursor:
+def insert_test_data(conn: Connection) -> None:
+    with TransactionManager(conn) as cursor:
         currencies = [
             ("USD", "United States dollar", "$"),
             ("EUR", "Euro", "€"),
@@ -53,13 +53,13 @@ def insert_test_data(connection: Connection):
             "INSERT INTO ExchangeRates (base_currency_id, target_currency_id, rate) VALUES (?, ?, ?)",
             exchange_rates,
         )
+    
 
 
 def main() -> None:
-    db_manager = DatabaseManager('database.db')
-    connection = db_manager.get_connection()
-    create_tables(connection)
-    insert_test_data(connection)
+    with connection_maker() as conn:
+        create_tables(conn)
+        insert_test_data(conn)
 
 if __name__ == "__main__":
     main()

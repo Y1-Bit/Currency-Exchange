@@ -1,16 +1,12 @@
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import parse_qs, urlparse
 
-from database.repo.requests import RequestsRepo
-from database.db_manager import DatabaseManager 
 from routes.router import Router
 
 
 class RequestHandler(BaseHTTPRequestHandler):
-    def __init__(self, *args, repo: RequestsRepo, router: Router, db_manager: DatabaseManager, **kwargs):
-        self.repo = repo
+    def __init__(self, *args, router: Router, **kwargs):
         self.router = router
-        self.db_manager = db_manager    
         super().__init__(*args, **kwargs)
 
     def do_GET(self):
@@ -24,9 +20,6 @@ class RequestHandler(BaseHTTPRequestHandler):
         path = parsed_path.path
         query = parse_qs(parsed_path.query)
 
-        connection = self.db_manager.get_connection()
-        self.repo.set_connection(connection)
-
         handler = self.router.find_handler(method, path)
         if handler:
             if method == "POST":
@@ -36,16 +29,16 @@ class RequestHandler(BaseHTTPRequestHandler):
         else:
             self.handle_not_found()
 
-        connection.close()
-
     def handle_get(self, handler, query):
-        handler(self, query, self.repo)
+        response = handler(self, query)
+        self.send_response_with_body(response["status_code"], response["body"])
 
     def handle_post(self, handler):
         content_length = int(self.headers["Content-Length"])
         post_data = self.rfile.read(content_length).decode("utf-8")
         form_data = {k: v[0] for k, v in parse_qs(post_data).items()}
-        handler(self, form_data, self.repo)
+        reponse = handler(self, form_data)
+        self.send_response_with_body(reponse["status_code"], reponse["body"])
 
     def send_response_with_body(self, code, body):
         self.send_response(code)

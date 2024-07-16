@@ -19,6 +19,6 @@ class Router:
         handlers = self.get_handlers if method == 'GET' else self.post_handlers
         for handler_path, handler in handlers:
             if path.startswith(handler_path):
-                return handler
-        return None
+                return handler, path[len(handler_path):].strip('/')
+        return None, None
 

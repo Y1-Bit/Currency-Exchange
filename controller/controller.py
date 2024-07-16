@@ -20,16 +20,18 @@ class RequestHandler(BaseHTTPRequestHandler):
         path = parsed_path.path
         query = parse_qs(parsed_path.query)
 
-        handler = self.router.find_handler(method, path)
+        handler, path_params = self.router.find_handler(method, path)
         if handler:
             if method == "POST":
                 self.handle_post(handler)
             elif method == "GET":
-                self.handle_get(handler)
+                self.handle_get(handler, path_params)
         else:
             self.handle_not_found()
 
-    def handle_get(self, handler):
+    def handle_get(self, handler, path_params):
+        if path_params:
+            response = handler(path_params)
         response = handler()
         self.send_response_with_body(response["status_code"], response["body"])
 

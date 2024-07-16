@@ -1,4 +1,3 @@
-from controller.controller import RequestHandler
 from database.db_manager import connection_maker
 from database.repo.currency import CurrencyRepo
 from database.transaction_manager import TransactionManager
@@ -18,7 +17,15 @@ def get_currencies() -> dict:
 
 
 @router.get("/currency/")
-def get_currency() -> None: ...
+def get_currency(code) -> dict:
+    with connection_maker() as conn:
+        with TransactionManager(conn) as cursor:
+            repo = CurrencyRepo(cursor)
+            currency = repo.get_currency_by_code(code)
+    if not currency:
+        return {"status_code": 404, "body": "Currency not found"}
+    response = currency.to_json()
+    return {"status_code": 200, "body": response}
 
 
 @router.get("/exchangeRates")

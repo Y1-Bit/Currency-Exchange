@@ -1,6 +1,6 @@
-from database.db_manager import DatabaseManager
+from sqlite3 import Cursor
 
 
 class BaseRepo:
-    def __init__(self, db_manager: DatabaseManager):
-        self.db_manager = db_manager
+    def __init__(self, cursor: Cursor):
+        self.cursor = cursor

@@ -1,9 +1,11 @@
-from database.db_manager import DatabaseManager
-from database.repo.requests import RequestsRepo
+from sqlite3 import Connection
+
+from database.db_manager import connection_maker
+from database.transaction_manager import TransactionManager
 
 
-def create_tables(repo: RequestsRepo):
-    with repo.db_manager.transaction() as cursor:
+def create_tables(conn: Connection) -> None:
+    with TransactionManager(conn) as cursor:
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS Currencies (
@@ -28,11 +30,9 @@ def create_tables(repo: RequestsRepo):
             )
             """
         )
-        if repo.db_manager.conn is not None:
-            repo.db_manager.conn.commit()
 
-def insert_test_data(repo: RequestsRepo):
-    with repo.db_manager.transaction() as cursor:
+def insert_test_data(conn: Connection) -> None:
+    with TransactionManager(conn) as cursor:
         currencies = [
             ("USD", "United States dollar", "$"),
             ("EUR", "Euro", "€"),
@@ -53,15 +53,13 @@ def insert_test_data(repo: RequestsRepo):
             "INSERT INTO ExchangeRates (base_currency_id, target_currency_id, rate) VALUES (?, ?, ?)",
             exchange_rates,
         )
+    
 
-        if repo.db_manager.conn is not None:
-            repo.db_manager.conn.commit()
 
 def main() -> None:
-    db_manager = DatabaseManager('database.db')
-    repo = RequestsRepo(db_manager)
-    create_tables(repo)
-    insert_test_data(repo)
+    with connection_maker() as conn:
+        create_tables(conn)
+        insert_test_data(conn)
 
 if __name__ == "__main__":
     main()

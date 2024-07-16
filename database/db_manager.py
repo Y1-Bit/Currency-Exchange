@@ -1,26 +1,18 @@
 import sqlite3
-from contextlib import closing, contextmanager
 
+class DatabaseConnection:
+    def __init__(self, db_path: str):
+        self.db_path = db_path
+        self.connection = None
 
-class DatabaseManager:
-    def __init__(self, dbname: str):
-        self.dbname = dbname
-        self.conn = None
+    def __enter__(self):
+        self.connection = sqlite3.connect(self.db_path)
+        return self.connection
 
-    def connect(self):
-        if self.conn is None or self.conn:
-            self.conn = sqlite3.connect(self.dbname)
-        return self
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.connection:
+            self.connection.close()
 
-    def close(self):
-        if self.conn:
-            self.conn.close()
-            self.conn = None
-
-    @contextmanager
-    def transaction(self):
-        if self.conn is None:
-            raise ValueError("Connection is not established.")
-
-        with self.conn, closing(self.conn.cursor()) as cursor:
-            yield cursor
+def connection_maker() -> DatabaseConnection:
+    db_path = "database.db"
+    return DatabaseConnection(db_path)

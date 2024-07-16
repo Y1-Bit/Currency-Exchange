@@ -8,7 +8,7 @@ router = Router()
 
 
 @router.get("/currencies")
-def get_currencies(handler: RequestHandler, query) -> dict:
+def get_currencies() -> dict:
     with connection_maker() as conn:
         with TransactionManager(conn) as cursor:
             repo = CurrencyRepo(cursor)
@@ -18,12 +18,12 @@ def get_currencies(handler: RequestHandler, query) -> dict:
 
 
 @router.get("/currency/")
-def get_currency(handler: RequestHandler, query) -> None: ...
+def get_currency() -> None: ...
 
 
 @router.get("/exchangeRates")
-def handle_get_exchange_rates(handler, query): ...
+def handle_get_exchange_rates(): ...
 
 
 @router.post("/currencies")
-def handle_post_currency(handler, form_data): ...
+def handle_post_currency(): ...

@@ -25,19 +25,19 @@ class RequestHandler(BaseHTTPRequestHandler):
             if method == "POST":
                 self.handle_post(handler)
             elif method == "GET":
-                self.handle_get(handler, query)
+                self.handle_get(handler)
         else:
             self.handle_not_found()
 
-    def handle_get(self, handler, query):
-        response = handler(self, query)
+    def handle_get(self, handler):
+        response = handler()
         self.send_response_with_body(response["status_code"], response["body"])
 
     def handle_post(self, handler):
         content_length = int(self.headers["Content-Length"])
         post_data = self.rfile.read(content_length).decode("utf-8")
         form_data = {k: v[0] for k, v in parse_qs(post_data).items()}
-        reponse = handler(self, form_data)
+        reponse = handler(form_data)
         self.send_response_with_body(reponse["status_code"], reponse["body"])
 
     def send_response_with_body(self, code, body):

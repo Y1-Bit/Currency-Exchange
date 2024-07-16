@@ -32,7 +32,8 @@ class RequestHandler(BaseHTTPRequestHandler):
     def handle_get(self, handler, path_params):
         if path_params:
             response = handler(path_params)
-        response = handler()
+        else:
+            response = handler()
         self.send_response_with_body(response["status_code"], response["body"])
 
     def handle_post(self, handler):

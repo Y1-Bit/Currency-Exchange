@@ -1,3 +1,5 @@
+from sqlite3 import IntegrityError
+
 from database.db_manager import connection_maker
 from database.repo.currency import CurrencyRepo
 from database.repo.exchange import ExchangeRepo
@@ -18,7 +20,10 @@ def get_currencies() -> dict:
 
 
 @router.get("/currency/")
-def get_currency(code) -> dict:
+def get_currency(code = None) -> dict:
+    if not code:
+        return {"status_code": 400, "body": "Currency code is required"}
+
     with connection_maker() as conn:
         with TransactionManager(conn) as cursor:
             repo = CurrencyRepo(cursor)
@@ -44,6 +49,9 @@ def handle_post_currency(form_data):
     with connection_maker() as conn:
         with TransactionManager(conn) as cursor:
             repo = CurrencyRepo(cursor)
-            currency = repo.add_currency(form_data)
+            try:
+                currency = repo.add_currency(form_data)
+            except IntegrityError:
+                return {"status_code": 409, "body": "Currency code already exists"}
     response = currency.to_json()
     return {"status_code": 201, "body": response}

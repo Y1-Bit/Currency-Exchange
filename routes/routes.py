@@ -44,6 +44,26 @@ def handle_get_exchange_rates() -> dict:
     return {"status_code": 200, "body": response}
 
 
+@router.get("/exchangeRate/")
+def handle_get_exchange_rate(pair = None):
+    if not pair:
+        return {"status_code": 400, "body": "Currency pair is required"}
+    
+    base_currency_code = pair[:3]
+    target_currency_code = pair[3:]
+    
+    with connection_maker() as conn:
+        with TransactionManager(conn) as cursor:
+            repo = ExchangeRepo(cursor)
+            exchange_rate = repo.get_exchange_by_pair(base_currency_code, target_currency_code)
+
+    if not exchange_rate:
+        return {"status_code": 404, "body": "Exchange rate not found"}
+    
+    response = exchange_rate.to_json()
+    return {"status_code": 200, "body": response}
+
+
 @router.post("/currencies")
 def handle_post_currency(form_data):
     with connection_maker() as conn:

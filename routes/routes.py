@@ -120,3 +120,40 @@ def handle_post_exchange_rates(form_data: dict):
     
     response = exchange_rate.to_json()
     return {"status_code": 201, "body": response} 
+
+
+
+
+@router.patch("/exchangeRate/")
+def handle_patch_exchange_rates(form_data: dict, pair = None):
+    rate = form_data.get("rate")
+
+    if not rate:
+        return {"status_code": 400, "body": "Rate is required"}
+    
+    if not pair:
+        return {"status_code": 400, "body": "Currency pair is required"}
+    
+    base_currency_code = pair[:3]
+    target_currency_code = pair[3:]
+    
+    with connection_maker() as conn:
+        with TransactionManager(conn) as cursor:
+            currency_repo = CurrencyRepo(cursor)
+            base_currency = currency_repo.get_currency_by_code(base_currency_code)
+            target_currency = currency_repo.get_currency_by_code(target_currency_code)
+            
+            if not base_currency or not target_currency:
+                return {"status_code": 404, "body": "Currency not found"}
+            
+            exchange_repo = ExchangeRepo(cursor)
+            exchange_rate = exchange_repo.get_exchange_by_pair(base_currency, target_currency)
+            
+            if not exchange_rate:
+                return {"status_code": 404, "body": "Exchange rate not found"}
+            
+            exchange_rate = exchange_repo.update_exchange(exchange_rate, rate)
+        
+    response = exchange_rate.to_json()
+    return {"status_code": 200, "body": response}
+        

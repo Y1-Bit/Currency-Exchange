@@ -14,10 +14,7 @@ class CurrencyRepo(BaseRepo):
          row = self.cursor.fetchone()
          return Currency(*row) if row else None
       
-      def add_currency(self, form_data: dict) -> Currency:
-          code = form_data["code"]
-          name = form_data["name"]
-          sign = form_data["sign"]
+      def add_currency(self, code: str, name: str, sign: str) -> Currency:
           self.cursor.execute("INSERT INTO Currencies (code, name, sign) VALUES (?, ?, ?)", (code, name, sign))
           return Currency(None, code, name, sign)
        

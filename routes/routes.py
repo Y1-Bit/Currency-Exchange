@@ -72,12 +72,19 @@ def handle_get_exchange_rate(pair = None):
 
 
 @router.post("/currencies")
-def handle_post_currency(form_data):
+def handle_post_currency(form_data: dict):
+    code = form_data.get("code")
+    name = form_data.get("name")
+    sign = form_data.get("sign") 
+    
+    if not code or not name or not sign:
+        return {"status_code": 400, "body": "Currency code, name and sign are required"}
+
     with connection_maker() as conn:
         with TransactionManager(conn) as cursor:
             repo = CurrencyRepo(cursor)
             try:
-                currency = repo.add_currency(form_data)
+                currency = repo.add_currency(code, name, sign)
             except IntegrityError:
                 return {"status_code": 409, "body": "Currency code already exists"}
     response = currency.to_json()

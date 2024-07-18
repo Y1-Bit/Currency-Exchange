@@ -25,25 +25,14 @@ class ExchangeRepo(BaseRepo):
         
         return ExchangeList(exchanges)
     
-    def get_exchange_by_pair(self, base_currency_code: str, target_currency_code: str) -> Exchange | None:
-        self.cursor.execute("""
-            SELECT 
-                e.id, e.rate,
-                bc.id, bc.code, bc.name, bc.sign,
-                tc.id, tc.code, tc.name, tc.sign
-            FROM ExchangeRates e
-            JOIN Currencies bc ON e.base_currency_id = bc.id
-            JOIN Currencies tc ON e.target_currency_id = tc.id
-            WHERE bc.code = ? AND tc.code = ?
-        """, (base_currency_code, target_currency_code))
-        
+    def get_exchange_by_pair(self, base_currency: Currency, target_currency_code: Currency) -> Exchange | None:
+        self.cursor.execute("SELECT id, rate FROM ExchangeRates WHERE base_currency_id = ? AND target_currency_id = ?",
+                            (base_currency.id, target_currency_code.id))
         row = self.cursor.fetchone()
-        if row:
-            exchange_id, rate, bc_id, bc_code, bc_name, bc_sign, tc_id, tc_code, tc_name, tc_sign = row
-            base_currency = Currency(bc_id, bc_code, bc_name, bc_sign)
-            target_currency = Currency(tc_id, tc_code, tc_name, tc_sign)
-            return Exchange(exchange_id, base_currency, target_currency, rate)
-        return None
+        if not row:
+            return None
+        exchange_id, rate = row
+        return Exchange(exchange_id, base_currency, target_currency_code, rate)
     
     def add_exchange(self, base_currency: Currency, target_currency: Currency, rate: float) -> Exchange:
         self.cursor.execute("INSERT INTO ExchangeRates (base_currency_id, target_currency_id, rate) VALUES (?, ?, ?)",

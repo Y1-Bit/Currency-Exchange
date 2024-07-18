@@ -54,8 +54,15 @@ def handle_get_exchange_rate(pair = None):
     
     with connection_maker() as conn:
         with TransactionManager(conn) as cursor:
-            repo = ExchangeRepo(cursor)
-            exchange_rate = repo.get_exchange_by_pair(base_currency_code, target_currency_code)
+            currency_repo = CurrencyRepo(cursor)
+            base_currency = currency_repo.get_currency_by_code(base_currency_code)
+            target_currency = currency_repo.get_currency_by_code(target_currency_code)
+         
+            if not base_currency or not target_currency:
+                return {"status_code": 404, "body": "Currency not found"}
+
+            exchange_repo = ExchangeRepo(cursor)
+            exchange_rate = exchange_repo.get_exchange_by_pair(base_currency, target_currency)
 
     if not exchange_rate:
         return {"status_code": 404, "body": "Exchange rate not found"}

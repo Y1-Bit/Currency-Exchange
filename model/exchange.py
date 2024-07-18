@@ -5,7 +5,7 @@ from model.currency import Currency
 
 @dataclass
 class Exchange:
-    id: int
+    id: int | None
     base_currency: Currency
     target_currency: Currency
     rate: float

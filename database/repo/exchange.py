@@ -44,3 +44,9 @@ class ExchangeRepo(BaseRepo):
             target_currency = Currency(tc_id, tc_code, tc_name, tc_sign)
             return Exchange(exchange_id, base_currency, target_currency, rate)
         return None
+    
+    def add_exchange(self, base_currency: Currency, target_currency: Currency, rate: float) -> Exchange:
+        self.cursor.execute("INSERT INTO ExchangeRates (base_currency_id, target_currency_id, rate) VALUES (?, ?, ?)",
+                            (base_currency.id, target_currency.id, rate))
+        return Exchange(None, base_currency, target_currency, rate)
+      

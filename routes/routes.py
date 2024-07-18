@@ -87,8 +87,9 @@ def handle_post_currency(form_data):
 
 @router.post('/exchangeRates')
 def handle_post_exchange_rates(form_data: dict):
-    base_currency_code = form_data.get("base_currency_code")
-    target_currency_code = form_data.get("target_currency_code")
+    print(form_data)
+    base_currency_code = form_data.get("baseCurrencyCode")
+    target_currency_code = form_data.get("targetCurrencyCode")
     rate = form_data.get("rate")
     
     if not base_currency_code or not target_currency_code or not rate:

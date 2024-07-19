@@ -31,7 +31,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             if method in ["POST", "PATCH"]:
                 self.handle_with_body(handler, path_params)
             elif method == "GET":
-                self.handle_get(handler, path_params)
+                self.handle_get(handler, path_params, query)
         else:
             self.handle_not_found()
     
@@ -42,9 +42,11 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
 
-    def handle_get(self, handler, path_params):
+    def handle_get(self, handler, path_params, query):
         if path_params:
             response = handler(path_params)
+        elif query:
+            response = handler(query)
         else:
             response = handler()
         self.send_response_with_body(response["status_code"], response["body"])

@@ -1,4 +1,6 @@
+import json
 from sqlite3 import IntegrityError
+from decimal import Decimal
 
 from database.db_manager import connection_maker
 from database.repo.currency import CurrencyRepo
@@ -155,4 +157,63 @@ def handle_patch_exchange_rates(form_data: dict, pair = None):
         
     response = exchange_rate.to_json()
     return {"status_code": 200, "body": response}
-        
+
+
+@router.get("/exchange") 
+def handle_get_exchange(query: dict):
+    base_currency_code = query.get("from")
+    target_currency_code = query.get("to")
+    amount = query.get("amount")
+
+    if not base_currency_code or not target_currency_code:
+        return {"status_code": 400, "body": "Currency codes are required"}
+    
+    if not amount:
+        return {"status_code": 400, "body": "Amount is required"}
+    
+    base_currency_code = base_currency_code[0]
+    target_currency_code = target_currency_code[0]
+    amount = Decimal(amount[0])
+
+    with connection_maker() as conn:
+        with TransactionManager(conn) as cursor:
+            currency_repo = CurrencyRepo(cursor)
+            base_currency = currency_repo.get_currency_by_code(base_currency_code)
+            target_currency = currency_repo.get_currency_by_code(target_currency_code)
+            
+            if not base_currency or not target_currency:
+                return {"status_code": 404, "body": "Currency not found"}
+            
+            exchange_repo = ExchangeRepo(cursor)
+            exchange_rate = exchange_repo.get_exchange_by_pair(base_currency, target_currency)
+            
+            if exchange_rate:
+                rate = Decimal(exchange_rate.rate)
+            else:
+                reverse_exchange_rate = exchange_repo.get_exchange_by_pair(target_currency, base_currency)
+                if reverse_exchange_rate:
+                    rate = Decimal(1) / Decimal(reverse_exchange_rate.rate)
+                else:
+                    usd_currency = currency_repo.get_currency_by_code("USD")
+                    if not usd_currency:
+                        return {"status_code": 404, "body": "USD currency not found"}
+                    
+                    base_to_usd = exchange_repo.get_exchange_by_pair(base_currency, usd_currency)
+                    usd_to_target = exchange_repo.get_exchange_by_pair(usd_currency, target_currency)
+
+                    if not base_to_usd or not usd_to_target:
+                        return {"status_code": 404, "body": "Exchange rate not found"}
+                    
+                    rate = Decimal(base_to_usd.rate) * Decimal(usd_to_target.rate)
+            
+    converted_amount = amount * rate
+
+    response = {
+                "baseCurrency": base_currency.to_json(),
+                "targetCurrency": target_currency.to_json(),
+                "rate": str(rate),
+                "amount": str(amount),
+                "convertedAmount": str(converted_amount)
+    }    
+    response = json.dumps(response)
+    return {"status_code": 200, "body": response}

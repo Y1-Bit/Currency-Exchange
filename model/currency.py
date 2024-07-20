@@ -11,10 +11,10 @@ class Currency:
 
     def to_dict(self) -> dict:
         return asdict(self)
-   
+
     def to_json(self) -> str:
-        return json.dumps(self.to_dict()) 
-    
+        return json.dumps(self.to_dict())
+
 
 @dataclass
 class CurrencyList:

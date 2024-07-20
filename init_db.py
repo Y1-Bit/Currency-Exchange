@@ -31,6 +31,7 @@ def create_tables(conn: Connection) -> None:
             """
         )
 
+
 def insert_test_data(conn: Connection) -> None:
     with TransactionManager(conn) as cursor:
         currencies = [
@@ -53,13 +54,13 @@ def insert_test_data(conn: Connection) -> None:
             "INSERT INTO ExchangeRates (base_currency_id, target_currency_id, rate) VALUES (?, ?, ?)",
             exchange_rates,
         )
-    
 
 
 def main() -> None:
     with connection_maker() as conn:
         create_tables(conn)
         insert_test_data(conn)
+
 
 if __name__ == "__main__":
     main()

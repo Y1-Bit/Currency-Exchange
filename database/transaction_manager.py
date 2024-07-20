@@ -6,12 +6,16 @@ class TransactionManager:
         self.connection = connection
         self.cursor: Cursor | None = None
 
-
     def __enter__(self) -> Cursor:
         self.cursor = self.connection.cursor()
         return self.cursor
 
-    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: BaseException | None) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: BaseException | None,
+    ) -> None:
         if exc_type is None:
             self.connection.commit()
         else:

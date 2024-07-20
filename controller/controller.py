@@ -15,10 +15,10 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         self.handle_request("POST")
-    
+
     def do_PATCH(self) -> None:
         self.handle_request("PATCH")
-    
+
     def do_OPTIONS(self) -> None:
         self.handle_options()
 
@@ -35,7 +35,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.handle_get(handler, path_params, query)
         else:
             self.handle_not_found()
-    
+
     def handle_options(self) -> None:
         self.send_response(200)
         self.send_header("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS")
@@ -43,7 +43,9 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
 
-    def handle_get(self, handler: Callable, path_params: str | None, query: dict[str, list[str]]) -> None:
+    def handle_get(
+        self, handler: Callable, path_params: str | None, query: dict[str, list[str]]
+    ) -> None:
         if path_params:
             response = handler(path_params)
         elif query:
@@ -52,7 +54,9 @@ class RequestHandler(BaseHTTPRequestHandler):
             response = handler()
         self.send_response_with_body(response["status_code"], response["body"])
 
-    def handle_with_body(self, handler: Callable, path_params: str | None = None) -> None:
+    def handle_with_body(
+        self, handler: Callable, path_params: str | None = None
+    ) -> None:
         content_length = int(self.headers["Content-Length"])
         post_data = self.rfile.read(content_length).decode("utf-8")
         form_data = {k: v[0] for k, v in parse_qs(post_data).items()}

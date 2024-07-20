@@ -15,7 +15,7 @@ class Exchange:
             "id": self.id,
             "baseCurrency": self.base_currency.to_dict(),
             "targetCurrency": self.target_currency.to_dict(),
-            "rate": self.rate
+            "rate": self.rate,
         }
 
     def to_json(self) -> str:

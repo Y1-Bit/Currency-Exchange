@@ -10,7 +10,12 @@ class DatabaseConnection:
         self.connection = sqlite3.connect(self.db_path)
         return self.connection
 
-    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: BaseException | None) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: BaseException | None,
+    ) -> None:
         if self.connection:
             self.connection.close()
 

@@ -13,12 +13,12 @@ class Currency:
         return asdict(self)
    
     def to_json(self):
-        return json.dumps(self.to_dict(), indent=4) 
+        return json.dumps(self.to_dict()) 
     
 
 @dataclass
-class ListCurrency:
+class CurrencyList:
     currencies: list[Currency]
 
     def to_json(self):
-        return json.dumps([currency.to_dict() for currency in self.currencies], indent=4)
+        return json.dumps([currency.to_dict() for currency in self.currencies])

@@ -206,7 +206,7 @@ def handle_get_exchange(query: dict):
                     
                     rate = Decimal(base_to_usd.rate) * Decimal(usd_to_target.rate)
             
-    converted_amount = amount * rate
+    converted_amount = (amount * rate).quantize(Decimal('0.01'))
 
     response = {
                 "baseCurrency": base_currency.to_json(),

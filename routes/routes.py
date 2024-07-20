@@ -25,7 +25,7 @@ def get_currencies() -> dict:
 
 
 @router.get("/currency/")
-def get_currency(code = None) -> dict:
+def get_currency(code: str | None = None) -> dict:
     try:
         if not code:
             return {"status_code": 400, "body": "Currency code is required"}
@@ -56,7 +56,7 @@ def handle_get_exchange_rates() -> dict:
 
 
 @router.get("/exchangeRate/")
-def handle_get_exchange_rate(pair = None):
+def handle_get_exchange_rate(pair: str | None = None) -> dict:
     try:
         if not pair:
             return {"status_code": 400, "body": "Currency pair is required"}
@@ -86,7 +86,7 @@ def handle_get_exchange_rate(pair = None):
 
 
 @router.post("/currencies")
-def handle_post_currency(form_data: dict):
+def handle_post_currency(form_data: dict) -> dict:
     try:
         code = form_data.get("code")
         name = form_data.get("name")
@@ -110,7 +110,7 @@ def handle_post_currency(form_data: dict):
 
 
 @router.post('/exchangeRates')
-def handle_post_exchange_rates(form_data: dict):
+def handle_post_exchange_rates(form_data: dict) -> dict:
     try:
         base_currency_code = form_data.get("baseCurrencyCode")
         target_currency_code = form_data.get("targetCurrencyCode")
@@ -144,7 +144,7 @@ def handle_post_exchange_rates(form_data: dict):
 
 
 @router.patch("/exchangeRate/")
-def handle_patch_exchange_rates(form_data: dict, pair = None):
+def handle_patch_exchange_rates(form_data: dict, pair = None) -> dict:
     try:
         rate = form_data.get("rate")
 
@@ -181,7 +181,7 @@ def handle_patch_exchange_rates(form_data: dict, pair = None):
 
 
 @router.get("/exchange") 
-def handle_get_exchange(query: dict):
+def handle_get_exchange(query: dict) -> dict:
     try:
         base_currency_code = query.get("from")
         target_currency_code = query.get("to")

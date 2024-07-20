@@ -8,17 +8,16 @@ To install the dependencies, run the following commands:
 
 ```sh
 python -m venv venv
-source venv/bin/activate  # For Windows use `venv\Scripts\activate`
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+### Windows Users
 
-## Running the Project
-
-To run the project, execute the following command:
+If you are using Windows, activate the virtual environment with the following command:
 
 ```sh
-python main.py
+venv\Scripts\activate
 ```
 
 ## Database Initialization
@@ -27,6 +26,14 @@ To initialize the database, run the following command:
 
 ```sh
 python init_db.py
+```
+
+## Running the Project
+
+To run the project, execute the following command:
+
+```sh
+python main.py
 ```
 
 ## Currencies

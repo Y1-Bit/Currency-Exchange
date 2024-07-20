@@ -2,24 +2,6 @@
 
 This project provides an API for managing currencies and exchange rates.
 
-## Installation
-
-To install the dependencies, run the following commands:
-
-```sh
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
-
-### Windows Users
-
-If you are using Windows, activate the virtual environment with the following command:
-
-```sh
-venv\Scripts\activate
-```
-
 ## Database Initialization
 
 To initialize the database, run the following command:

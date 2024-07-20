@@ -9,10 +9,10 @@ class Currency:
     name: str
     sign: str
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         return asdict(self)
    
-    def to_json(self):
+    def to_json(self) -> str:
         return json.dumps(self.to_dict()) 
     
 
@@ -20,5 +20,5 @@ class Currency:
 class CurrencyList:
     currencies: list[Currency]
 
-    def to_json(self):
+    def to_json(self) -> str:
         return json.dumps([currency.to_dict() for currency in self.currencies])

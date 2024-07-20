@@ -144,7 +144,7 @@ def handle_post_exchange_rates(form_data: dict) -> dict:
 
 
 @router.patch("/exchangeRate/")
-def handle_patch_exchange_rates(form_data: dict, pair = None) -> dict:
+def handle_patch_exchange_rates(form_data: dict, pair: str | None = None) -> dict:
     try:
         rate = form_data.get("rate")
 

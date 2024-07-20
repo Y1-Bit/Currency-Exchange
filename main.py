@@ -5,7 +5,7 @@ from controller.controller import RequestHandler
 from routes.routes import router
 
 
-def run(handler_class, server_class=HTTPServer, port=8000):
+def run(handler_class, server_class=HTTPServer, port=8000) -> None:
     server_address = ("", port)
     httpd = server_class(server_address, handler_class)
     print(f"Starting httpd server on port {port}...")

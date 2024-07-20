@@ -10,7 +10,7 @@ class Exchange:
     target_currency: Currency
     rate: float
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         return {
             "id": self.id,
             "baseCurrency": self.base_currency.to_dict(),
@@ -18,7 +18,7 @@ class Exchange:
             "rate": self.rate
         }
 
-    def to_json(self):
+    def to_json(self) -> str:
         return json.dumps(self.to_dict())
 
 
@@ -26,5 +26,5 @@ class Exchange:
 class ExchangeList:
     exchanges: list[Exchange]
 
-    def to_json(self):
+    def to_json(self) -> str:
         return json.dumps([exchange.to_dict() for exchange in self.exchanges])

@@ -23,18 +23,24 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.handle_options()
 
     def handle_request(self, method: str) -> None:
-        parsed_path = urlparse(self.path)
-        path = parsed_path.path
-        query = parse_qs(parsed_path.query)
+        try:
+            parsed_path = urlparse(self.path)
+            path = parsed_path.path
+            query = parse_qs(parsed_path.query)
 
-        handler, path_params = self.router.find_handler(method, path)
-        if handler:
-            if method in ["POST", "PATCH"]:
-                self.handle_with_body(handler, path_params)
-            elif method == "GET":
-                self.handle_get(handler, path_params, query)
-        else:
-            self.handle_not_found()
+            handler, path_params = self.router.find_handler(method, path)
+            if handler:
+                if method in ["POST", "PATCH"]:
+                    self.handle_with_body(handler, path_params)
+                elif method == "GET":
+                    self.handle_get(handler, path_params, query)
+            else:
+                self.handle_not_found()
+        except Exception as e:
+            self.handle_error()
+
+    def handle_error(self) -> None:
+        self.send_response_with_body(500, "Internal Server Error")
 
     def handle_options(self) -> None:
         self.send_response(200)

@@ -1,6 +1,7 @@
 from database.repo.base import BaseRepo
 from model.exchange import Exchange, ExchangeList
 from model.currency import Currency
+from exceptions import ExchangeRateNotFoundException, ExchangeAlreadyExistsException
 
 
 class ExchangeRepo(BaseRepo):
@@ -33,22 +34,29 @@ class ExchangeRepo(BaseRepo):
 
         return ExchangeList(exchanges)
 
-    def get_exchange_by_pair(
-        self, base_currency: Currency, target_currency_code: Currency
-    ) -> Exchange | None:
+    def get_exchange_by_pair(self, base_currency: Currency, target_currency: Currency) -> Exchange:
         self.cursor.execute(
             "SELECT id, rate FROM ExchangeRates WHERE base_currency_id = ? AND target_currency_id = ?",
-            (base_currency.id, target_currency_code.id),
+            (base_currency.id, target_currency.id),
         )
         row = self.cursor.fetchone()
         if not row:
-            return None
+            raise ExchangeRateNotFoundException(
+                f"Exchange rate for pair {base_currency.code}{target_currency.code} not found"
+            )
         exchange_id, rate = row
-        return Exchange(exchange_id, base_currency, target_currency_code, rate)
+        return Exchange(exchange_id, base_currency, target_currency, rate)
 
     def add_exchange(
         self, base_currency: Currency, target_currency: Currency, rate: float
     ) -> Exchange:
+        self.cursor.execute(
+            "SELECT COUNT(*) FROM ExchangeRates WHERE base_currency_id = ? AND target_currency_id = ?",
+            (base_currency.id, target_currency.id),
+        )
+        if self.cursor.fetchone()[0] > 0:
+            raise ExchangeAlreadyExistsException(f"Exchange rate from {base_currency.code} to {target_currency.code} already exists.")
+
         self.cursor.execute(
             "INSERT INTO ExchangeRates (base_currency_id, target_currency_id, rate) VALUES (?, ?, ?)",
             (base_currency.id, target_currency.id, rate),

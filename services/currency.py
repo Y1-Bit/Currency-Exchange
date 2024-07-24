@@ -11,12 +11,14 @@ def get_all_currencies() -> CurrencyList:
             currencies = repo.get_all_currencies()
     return currencies
 
+
 def get_currency_by_code(code: str) -> Currency:
     with connection_maker() as conn:
         with TransactionManager(conn) as cursor:
             repo = CurrencyRepo(cursor)
             currency = repo.get_currency_by_code(code)
     return currency
+
 
 def add_currency(code: str, name: str, sign: str) -> Currency:
     with connection_maker() as conn:

@@ -22,7 +22,9 @@ class CurrencyRepo(BaseRepo):
     def add_currency(self, code: str, name: str, sign: str) -> Currency:
         self.cursor.execute("SELECT COUNT(*) FROM Currencies WHERE code = ?", (code,))
         if self.cursor.fetchone()[0] > 0:
-            raise CurrencyAlreadyExistsException(f"Currency with code {code} already exists.")
+            raise CurrencyAlreadyExistsException(
+                f"Currency with code {code} already exists."
+            )
 
         self.cursor.execute(
             "INSERT INTO Currencies (code, name, sign) VALUES (?, ?, ?)",

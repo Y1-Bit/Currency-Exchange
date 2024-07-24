@@ -34,7 +34,9 @@ class ExchangeRepo(BaseRepo):
 
         return ExchangeList(exchanges)
 
-    def get_exchange_by_pair(self, base_currency: Currency, target_currency: Currency) -> Exchange:
+    def get_exchange_by_pair(
+        self, base_currency: Currency, target_currency: Currency
+    ) -> Exchange:
         self.cursor.execute(
             "SELECT id, rate FROM ExchangeRates WHERE base_currency_id = ? AND target_currency_id = ?",
             (base_currency.id, target_currency.id),
@@ -55,7 +57,9 @@ class ExchangeRepo(BaseRepo):
             (base_currency.id, target_currency.id),
         )
         if self.cursor.fetchone()[0] > 0:
-            raise ExchangeAlreadyExistsException(f"Exchange rate from {base_currency.code} to {target_currency.code} already exists.")
+            raise ExchangeAlreadyExistsException(
+                f"Exchange rate from {base_currency.code} to {target_currency.code} already exists."
+            )
 
         self.cursor.execute(
             "INSERT INTO ExchangeRates (base_currency_id, target_currency_id, rate) VALUES (?, ?, ?)",

@@ -44,21 +44,12 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def handle_options(self) -> None:
         self.send_response(200)
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS")
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.set_common_headers()
         self.end_headers()
-
-    def handle_get(
-        self, handler: Callable, path_params: str | None, query: dict[str, list[str]]
-    ) -> None:
-        if path_params:
-            response = handler(path_params)
-        elif query:
-            response = handler(query)
-        else:
-            response = handler()
-        self.send_response_with_body(response["status_code"], response["body"])
+        
+    def handle_not_found(self) -> None:
+        response = "Not Found"
+        self.send_response_with_body(404, response)
 
     def handle_with_body(
         self, handler: Callable, path_params: str | None = None
@@ -72,14 +63,25 @@ class RequestHandler(BaseHTTPRequestHandler):
             response = handler(form_data)
         self.send_response_with_body(response["status_code"], response["body"])
 
+    def handle_get(
+        self, handler: Callable, path_params: str | None, query: dict[str, list[str]]
+    ) -> None:
+        if path_params:
+            response = handler(path_params)
+        elif query:
+            response = handler(query)
+        else:
+            response = handler()
+        self.send_response_with_body(response["status_code"], response["body"])
+
     def send_response_with_body(self, code: int, body: str) -> None:
         self.send_response(code)
-        self.send_header("Content-type", "application/json")
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS")
-        self.send_header("Access-Control-Allow-Origin", "*")
+        self.set_common_headers()
         self.end_headers()
         self.wfile.write(body.encode("utf-8"))
 
-    def handle_not_found(self) -> None:
-        response = "Not Found"
-        self.send_response_with_body(404, response)
+    def set_common_headers(self) -> None:
+        self.send_header("Content-type", "application/json")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS")
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
